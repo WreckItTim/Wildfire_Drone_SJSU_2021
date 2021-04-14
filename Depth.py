@@ -16,15 +16,15 @@ import matplotlib.cm as cm
 
 # tim edit, has global methods and variables to access
 import utils
-import Vision
+from vision import Vision
 
+# TODO: this didn't work for me with Vision due to num of arguments CN 210413
 class MonoDepth2(Vision):
     """
     Apply MonoDepth2 to image input as a file path
     """
 
     def __init__(self):
-        Depth.__init__(self)
         #print('MonoDepth2 Depth obj created...')
 
         self.model_name = "mono_640x192"
@@ -91,16 +91,16 @@ class MonoDepth2(Vision):
                     disp, (original_height, original_width), mode="bilinear", align_corners=False)
 
                 # Saving numpy file               tim edit - skip for now will turn back on later
-                #output_name = os.path.splitext(os.path.basename(image_path))[0]
+                output_name = os.path.splitext(os.path.basename(image_path))[0]
                 #name_dest_npy = os.path.join(output_directory, "{}_disp.npy".format(output_name))
                 #scaled_disp, _ = disp_to_depth(disp, 0.1, 100)
                 #np.save(name_dest_npy, scaled_disp.cpu().numpy())
 
                 # Saving colormapped depth image
                 disp_resized_np = disp_resized.squeeze().cpu().numpy()
-                vmax = np.percentile(disp_resized_np, 95)
+                vmax = np.percentile(disp_resized_np, 50)
                 normalizer = mpl.colors.Normalize(vmin=disp_resized_np.min(), vmax=vmax)
-                mapper = cm.ScalarMappable(norm=normalizer, cmap='magma')
+                mapper = cm.ScalarMappable(norm=normalizer, cmap='binary')
                 colormapped_im = (mapper.to_rgba(disp_resized_np)[:, :, :3] * 255).astype(np.uint8)
                 im = pil.fromarray(colormapped_im)
 
@@ -118,4 +118,4 @@ class MonoDepth2(Vision):
 
 
 #depth = MonoDepth2()
-#depth.transform("tello/runs/tim 12-3-2021 15-25-16/photos/0_takePictures/Scene.png")
+#depth.transform("unreal/runs/tim 24-3-2021 14-11-13/photos/1/Scene.png")
