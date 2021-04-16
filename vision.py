@@ -14,6 +14,7 @@ class Vision:
         img = cv2.imread(read_from_path, cv2.IMREAD_GRAYSCALE)/255
         height = img.shape[0]
         width = img.shape[1]
+
         height_cut = int(height/3)
         width_cut = int(width/3)
         directions = {
@@ -23,6 +24,7 @@ class Vision:
             ,'down':(1, 2)
             ,'forward':(1, 1)
                }
+
         for direction in directions:
             x = directions[direction][0]
             y = directions[direction][1]
