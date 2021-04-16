@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-version https://git-lfs.github.com/spec/v1
-oid sha256:43d32597e172a1f1e9d1c7a05d820890a963196ef8142bf039e682579acfc4b0
-size 2752
-=======
 # @Angelica
 import torch
 import torchvision
@@ -33,13 +28,13 @@ class UNET(Segmentation):
     def __init__(self):
         # tim edit - added test stuff to init()
         DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
-        self.model = nn(in_channels=3, out_channels=3).to(DEVICE)
+        self.model = nn(in_channels=3, out_channels=1).to(DEVICE)
         self.optimizer = optim.Adam(self.model.parameters(), lr=1e-4)
         self.checkpoint = {
             'state_dict': self.model.state_dict(),
             'optimizer': self.optimizer.state_dict()
         }
-        self.load_checkpoint(torch.load('my_checkpoint.pth.tar', map_location='cpu'), self.model)
+        self.load_checkpoint(torch.load('bin_checkpoint.pth.tar', map_location=DEVICE), self.model)
 
     def transform(self, read_from_path, write_to_path):
         # tim edit - writing to specific file path with full extension, no need to create directory
@@ -48,7 +43,7 @@ class UNET(Segmentation):
 
         height, width = 640, 360
         transforms = A.Compose([
-            A.Resize(height=height, width=width),
+            #A.Resize(height=height, width=width),
             A.Normalize(
                 mean=[0.0, 0.0, 0.0],
                 std=[1.0, 1.0, 1.0],
@@ -85,9 +80,9 @@ class UNET(Segmentation):
 
 
 
-# TODO: test code!!
-#DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
-#model = nn(in_channels=3, out_channels=1).to(DEVICE)
-#unet = UNET(model, 'my_checkpoint2.pth.tar')
-#unet.transform('tello/runs/tim 12-3-2021 15-25-16/photos/0_takePictures/Scene.png','saved_images')
->>>>>>> 3fc45c3a9152eb3c8b591b810d18d2b798a8ab7b
+
+# DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
+# model = nn(in_channels=3, out_channels=4).to(DEVICE)
+# unet = UNET(model, 'my_checkpoint2.pth.tar')
+# unet.transform('tello/runs/tim 12-3-2021 15-25-16/photos/0_takePictures/Scene.png','saved_images')
+
