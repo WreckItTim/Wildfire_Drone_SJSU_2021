@@ -19,7 +19,7 @@ import utils
 from vision import Vision
 
 # TODO: this didn't work for me with Vision due to num of arguments CN 210413
-class MonoDepth2():
+class MonoDepth2(Vision):
     """
     Apply MonoDepth2 to image input as a file path
     """
@@ -117,5 +117,5 @@ class MonoDepth2():
         print('-> Done!')
 
 
-depth = MonoDepth2()
-depth.transform("/Users/nguyec27/PycharmProjects/Wildfire_Drone_SJSU_2021/unreal_environment_ex.png")
+#depth = MonoDepth2()
+#depth.transform("/Users/nguyec27/PycharmProjects/Wildfire_Drone_SJSU_2021/unreal_environment_ex.png")
