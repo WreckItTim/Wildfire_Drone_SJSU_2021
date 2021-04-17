@@ -135,8 +135,6 @@ class Normal():
                 runtime_measurements.append((time.time() - start_time) / config['BATCH_SIZE'])
 
                 for i in range(output_prediction.shape[0]):
-                    saving_rgb_tensor_to_file(sample_batched['image'][i],
-                                              os.path.join(config['LOG_FOLDER'], 'input_%d.png' % _saving_indices))
                     saving_normal_tensor_to_file(output_prediction[i],
                                                  os.path.join(config['LOG_FOLDER'],
                                                               'input_%d_normal_pred.png' % _saving_indices))
@@ -147,5 +145,5 @@ class Normal():
     def reward(self, time_step):
         print('Vision reward() not set!')
 
-normals = Normal()
-normals.transform("/Users/nguyec27/PycharmProjects/Wildfire_Drone_SJSU_2021/unreal/runs/tim 15-3-2021 0-38-13/photos/1/")
+#normals = Normal()
+#normals.transform("/Users/nguyec27/PycharmProjects/Wildfire_Drone_SJSU_2021/unreal/runs/tim 15-3-2021 0-38-13/photos/3/")
