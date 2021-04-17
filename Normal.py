@@ -21,12 +21,12 @@ class Normal():
 
         def parsing_configurations():
             config = {'LOG_FOLDER': image_path,
-                      'CKPT_PATH': 'checkpoints/DFPN_TAL.ckpt',
+                      'CKPT_PATH': 'checkpoints/DFPN_TAL_SR.ckpt',
                       'SR_CKPT_PATH': 'checkpoints/SR_only.ckpt',
                       'OPERATION': 'inference',
                       'BATCH_SIZE': 8,
                       'TEST_DATASET': image_path,
-                      'ARCHITECTURE': 'dfpn'}
+                      'ARCHITECTURE': 'sr_dfpn'}
             return config
 
         def log(str, fp=None):
@@ -147,5 +147,5 @@ class Normal():
     def reward(self, time_step):
         print('Vision reward() not set!')
 
-#normals = Normal()
-#normals.transform("unreal/runs/tim 24-3-2021 14-11-13/photos/1")
+normals = Normal()
+normals.transform("/Users/nguyec27/PycharmProjects/Wildfire_Drone_SJSU_2021/unreal/runs/tim 15-3-2021 0-38-13/photos/1/")

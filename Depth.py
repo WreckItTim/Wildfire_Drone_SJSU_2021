@@ -100,7 +100,7 @@ class MonoDepth2(Vision):
                 disp_resized_np = disp_resized.squeeze().cpu().numpy()
                 vmax = np.percentile(disp_resized_np, 50)
                 normalizer = mpl.colors.Normalize(vmin=disp_resized_np.min(), vmax=vmax)
-                mapper = cm.ScalarMappable(norm=normalizer, cmap='binary')
+                mapper = cm.ScalarMappable(norm=normalizer, cmap='binary_r')
                 colormapped_im = (mapper.to_rgba(disp_resized_np)[:, :, :3] * 255).astype(np.uint8)
                 im = pil.fromarray(colormapped_im)
 
