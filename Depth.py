@@ -45,7 +45,7 @@ class MonoDepth2(Vision):
         self.encoder.eval()
         self.depth_decoder.eval()
 
-    def transform(self, read_from_path, write_to_path=None):
+    def transform(self, read_from_path, write_to_path):
         #print('MonoDepth2 transform()')
 
         # Load test image and preprocessing
@@ -115,7 +115,3 @@ class MonoDepth2(Vision):
                     idx + 1, len(paths), name_dest_im))
 
         print('-> Done!')
-
-
-#depth = MonoDepth2()
-#depth.transform("/Users/nguyec27/PycharmProjects/Wildfire_Drone_SJSU_2021/unreal_environment_ex.png")
