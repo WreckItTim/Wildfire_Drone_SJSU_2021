@@ -129,9 +129,9 @@ class Deep(Decision):
     drone.actions[timestep] = 'move ' + direction + ' ' + str(drone.distance)
     print('move ' + direction + ' ' + str(drone.distance))
     
-    args['progress'] =  = 'path'
+    args['progress'] = 'path'
     if timestep >= args['maxTimestep']:
-      args['progress'] =  = 'goal'
+      args['progress'] = 'goal'
     
     return args
     
@@ -154,7 +154,7 @@ class Rewards(Decision):
     nSteps = args['nSteps']
     lastDirection = args['lastDirection']
     visions = args['visions']
-    coefficients = args['coefficients']
+    coeffecients = args['coefficients']
 
     ongoing_rewards = {
         'left':0
@@ -164,11 +164,11 @@ class Rewards(Decision):
         ,'forward':0
     }
     pos_change = {
-        'left':np.array([0, -1*drone.distance, 0])0
-        ,'right':np.array([0, drone.distance, 0])0
-        ,'up':np.array([0, 0, drone.distance])0
-        ,'down':np.array([0, 0, -1*drone.distance])0
-        ,'forward':np.array([drone.distance, 0, 0])0
+        'left':np.array([0, -1*drone.distance, 0])
+        ,'right':np.array([0, drone.distance, 0])
+        ,'up':np.array([0, 0, drone.distance])
+        ,'down':np.array([0, 0, -1*drone.distance])
+        ,'forward':np.array([drone.distance, 0, 0])
     }
 
     # get vision rewards
@@ -185,7 +185,7 @@ class Rewards(Decision):
         distances[direction] = np.linalg.norm(nextPoint - pos) + np.linalg.norm(lastPoint - pos)
         maxDistance = max(distances[direction], maxDistance)
     for direction in ongoing_rewards:
-        ongoing_rewards[direction] += coeffecients['path'] * distances[direction] / maxDir
+        ongoing_rewards[direction] += coeffecients['path'] * distances[direction] / maxDistance
     
     # get objective rewards
     distances = {}
@@ -195,7 +195,7 @@ class Rewards(Decision):
         distances[direction] = np.linalg.norm(endPoint - pos) + np.linalg.norm(endPoint - pos)
         maxDistance = max(distances[direction], maxDistance)
     for direction in ongoing_rewards:
-        ongoing_rewards[direction] += coeffecients['objective'] * distances[direction] / maxDir
+        ongoing_rewards[direction] += coeffecients['objective'] * distances[direction] / maxDistance
 
     # get smoothness rewards
     for direction in ongoing_rewards:

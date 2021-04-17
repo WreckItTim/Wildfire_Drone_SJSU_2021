@@ -45,7 +45,7 @@ class MonoDepth2(Vision):
         self.encoder.eval()
         self.depth_decoder.eval()
 
-    def transform(self, read_from_path, write_to_path=None):
+    def transform(self, read_from_path, write_to_path):
         #print('MonoDepth2 transform()')
 
         # Load test image and preprocessing
@@ -100,7 +100,7 @@ class MonoDepth2(Vision):
                 disp_resized_np = disp_resized.squeeze().cpu().numpy()
                 vmax = np.percentile(disp_resized_np, 50)
                 normalizer = mpl.colors.Normalize(vmin=disp_resized_np.min(), vmax=vmax)
-                mapper = cm.ScalarMappable(norm=normalizer, cmap='binary')
+                mapper = cm.ScalarMappable(norm=normalizer, cmap='binary_r')
                 colormapped_im = (mapper.to_rgba(disp_resized_np)[:, :, :3] * 255).astype(np.uint8)
                 im = pil.fromarray(colormapped_im)
 
@@ -115,7 +115,3 @@ class MonoDepth2(Vision):
                     idx + 1, len(paths), name_dest_im))
 
         print('-> Done!')
-
-
-#depth = MonoDepth2()
-#depth.transform("unreal/runs/tim 24-3-2021 14-11-13/photos/1/Scene.png")

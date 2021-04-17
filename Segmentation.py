@@ -15,17 +15,9 @@ import glob
 
 # tim edit - global functions and variables
 import utils
+from vision import Vision
 
-class Segmentation:
-
-    def __init__(self):
-        print('Parent Segmentation obj created...')
-
-    def transform(self, read_from_path, write_to_path):
-        print('Segmentation transform() not set!')
-
-
-class UNET(Segmentation):
+class UNET(Vision):
     def __init__(self):
         # tim edit - added test stuff to init()
         # DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
