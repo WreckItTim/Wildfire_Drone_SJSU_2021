@@ -1,3 +1,4 @@
 multires_aug.pb
+bin_checkpoint.pth.tar
 my_checkpoint.pth.tar
 /depth

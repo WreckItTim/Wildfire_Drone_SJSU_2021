@@ -3,7 +3,9 @@
 import time
 import os
 from PIL import Image
-import Aerial, Drone, Depth, Segmentation, Decision
+from vision import Vision
+import Drone, Depth, Segmentation, Decision, Aerial
+import numpy as np
 
 # prompt for user name
 user = input("Enter user name: ").lower()
@@ -15,11 +17,11 @@ Drone.hello()
 aerialFire = Aerial.Fire()
 
 # set aerial object module
-aerialObjects = Aerial.Objects()
+aerialObjects = Aerial.Building()
 
 # set vision modules
 visions = {
-	'fire' : Aeriel.Fire(),
+	'fire' : Aerial.Fire(),
 	'depth' : Depth.MonoDepth2(),
 	'smoke' : Segmentation.UNET()
 }
@@ -123,12 +125,13 @@ args['nSteps'] = path.shape[0]
 args['lastDirection'] = ''
 args['visions'] = visions
 args['coefficients'] = coefficients
+args['objectiveEpsilon'] = 1
 stepthrough = input('Next Timestep?')
 while(True):
 
   # move one timestep up
   args['timestep'] += 1
-  args['timePath'] = os.path.join(drone.photosPath, str(timestep))
+  args['timePath'] = os.path.join(drone.photosPath, str(args['timestep']))
   os.mkdir(args['timePath'])
 
   # take photos for this timestep

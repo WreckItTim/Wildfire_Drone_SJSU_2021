@@ -1,6 +1,7 @@
 # @Tim
 import cv2
 import utils
+import numpy as np
 
 class Vision:
 

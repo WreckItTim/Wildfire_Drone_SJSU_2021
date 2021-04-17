@@ -16,20 +16,14 @@ from tqdm import tqdm
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
+from vision import Vision
 
-class Aerial:
-
+class Fire(Vision):
         def __init__(self):
-                print('Parent Aerial obj created...')
-        def transform(self,read_from_path, write_to_path):
-                print('Aerial transform() not set!')
-
-class Fire(Aerial):
-        def __init__(self):
-                self.pixels = 200
-            print('Fire Aerial obj created...')
+            self.pixels = 200
+            print('Fire obj created...')
             
-        def transform(self,read_from_path, write_to_path):
+        def transform(self, read_from_path, write_to_path):
                 
                 img = cv2.imread(read_from_path)
  
@@ -48,7 +42,7 @@ class Fire(Aerial):
                  
                 image_binary = cv2.inRange(frame_hsv, lower_bound, upper_bound)
 
-                cv2.imwrite(write_to_path, img_binary)
+                cv2.imwrite(write_to_path, image_binary)
 
 def generate_detections(checkpoint,images):
                     
@@ -125,13 +119,13 @@ def draw_bboxes(img,boxes,classes):
 
 
 
-class Building(Aerial):
+class Building(Vision):
         def __init__(self):
                 self.chip_size = 60
                 self.path_to_model='multires_aug.pb'
-                print('Aerial obj created...')
+                print('Building obj created...')
             
-        def transform(self,read_from_path, write_to_path):
+        def transform(self, read_from_path, write_to_path):
    
                 #Parse and chip images
                 arr = np.array(Image.open(read_from_path))
@@ -190,7 +184,7 @@ class Building(Aerial):
 #uploaded "testfire.jpg" and "satellite.tif" to possibly use for Demo unless you have other image to test. Note that we have two inputs and outputs because they're two tasks until we get sim aerial view with buildings and fire and/or get the Map interface connected.
 #args: path to aerial fire image, path to output fire detection, path to aerial building image, path to output object/building detection
 #arg: path to model from main Git page
-fire = Fire()
-building = Building()
-fire.transform("testfire.jpg", "firedetection.jpg")
-building.transform("satellite.tif", "satellite_objectdetection.txt")
+#fire = Fire()
+#building = Building()
+#fire.transform("testfire.jpg", "firedetection.jpg")
+#building.transform("satellite.tif", "satellite_objectdetection.txt")
