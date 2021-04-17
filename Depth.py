@@ -19,7 +19,7 @@ import utils
 from vision import Vision
 
 # TODO: this didn't work for me with Vision due to num of arguments CN 210413
-class MonoDepth2(Vision):
+class MonoDepth2():
     """
     Apply MonoDepth2 to image input as a file path
     """
@@ -100,7 +100,7 @@ class MonoDepth2(Vision):
                 disp_resized_np = disp_resized.squeeze().cpu().numpy()
                 vmax = np.percentile(disp_resized_np, 50)
                 normalizer = mpl.colors.Normalize(vmin=disp_resized_np.min(), vmax=vmax)
-                mapper = cm.ScalarMappable(norm=normalizer, cmap='binary')
+                mapper = cm.ScalarMappable(norm=normalizer, cmap='binary_r')
                 colormapped_im = (mapper.to_rgba(disp_resized_np)[:, :, :3] * 255).astype(np.uint8)
                 im = pil.fromarray(colormapped_im)
 
@@ -117,5 +117,5 @@ class MonoDepth2(Vision):
         print('-> Done!')
 
 
-#depth = MonoDepth2()
-#depth.transform("unreal/runs/tim 24-3-2021 14-11-13/photos/1/Scene.png")
+depth = MonoDepth2()
+depth.transform("unreal/runs/tim 24-3-2021 14-11-13/photos/1/Scene.png")
