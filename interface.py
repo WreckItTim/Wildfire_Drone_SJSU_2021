@@ -21,9 +21,9 @@ aerialObjects = Aerial.Building()
 
 # set vision modules
 visions = {
-	'fire' : Aerial.Fire(),
-	'depth' : Depth.MonoDepth2(),
-	'smoke' : Segmentation.UNET()
+	#'fire' : Aerial.Fire(),
+	'depth' : Depth.MonoDepth2()#,
+	#'smoke' : Segmentation.UNET()
 }
 
 # set decision module
@@ -34,23 +34,28 @@ decision = Decision.Rewards()
 
 # set RL reward coefficients
 coefficients = {
-	'fire' : 1,
+	'fire' : 0,
 	'depth' : 1,
-	'smoke' : 1,
+	'smoke' : 0,
 	'path' : 1,
-	'objective' : 1,
-	'smoothness' : 1
+	'objective' : 0,
+	'smooth' : 1
 }
 
 # set drone module
 drone_name = input('running from tello or unreal?').lower()
 while drone_name != 'tello' and drone_name != 'unreal':
   drone_name = input('try again. running from tello or unreal?').lower()
+
+
 if drone_name == 'tello':
   drone = Drone.Tello()
+
 elif drone_name == 'unreal':
   drone = Drone.Unreal()
   drone.speed = 5
+  drone.duration = 1
+  drone.distance = 5
 
 # create unique folder for this run - to log and store data
 secondsSinceEpoch = time.time()
@@ -72,13 +77,21 @@ if drone_name == 'tello':
 		,[0, -400, 0]
 	])
 elif drone_name == 'unreal':
-	path = np.array([
+	'''path = np.array([
 		[0, 0, 0]
 		,[10, 0, 0]
 		,[10, 0, 10]
 		,[120, -40, 10]
 		,[120, -80, 10]
 		,[170, -70, -20]
+	])'''
+	path = np.array([
+		[0, 0, 0]
+		,[40, 0, 0]
+		,[80, 0, 0]
+		,[120, 0, 0]
+		,[160, 0, 0]
+		,[200, 0, 0]
 	])
 
 # connect to drone
@@ -126,8 +139,9 @@ args['lastDirection'] = ''
 args['visions'] = visions
 args['coefficients'] = coefficients
 args['objectiveEpsilon'] = 1
-stepthrough = input('Next Timestep?')
+print(drone.getState())
 while(True):
+  #stepthrough = input('Next Timestep?')
 
   # move one timestep up
   args['timestep'] += 1
@@ -141,16 +155,18 @@ while(True):
   for vision in visions:
 	  args[vision + '_readPath'] = os.path.join(args['timePath'], 'Scene.png')
 	  args[vision + '_writePath'] = os.path.join(args['timePath'], vision + '.png')
+	  args[vision + '_rewardsPath'] = os.path.join(args['timePath'], vision + '_rewards.png')
 	  visions[vision].transform(args[vision + '_readPath'], args[vision + '_writePath'])
 
   # make decision
-  response = decision.decide(args)
-  
+  args = decision.decide(args)
+  print('progress', args['progress'])
+
   # wait for next time step
   time.sleep(sample_rate)
 
   # exit when reached end
-  if response == 'goal':
+  if args['progress'] == 'goal':
     stepthrough = input('Finished! Exit?')
     if drone_name == 'tello':
       drone.flip()

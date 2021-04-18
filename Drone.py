@@ -35,7 +35,7 @@ class Drone:
     self.actions = {}
     self.speed = 20
     self.distance = 20
-    self.duration = 2
+    self.duration = 1
     self.pos = np.array([0, 0, 0]).astype(int)
     self.photosPath = ''
     self.logPath = ''
@@ -59,6 +59,8 @@ class Drone:
     print('command() not defined from child')
   def snapAerial(self, path):
     print('snapAerial() not defined from child')
+  def getPos(self):
+    print('getPos() not defined from child')
 
 
     
@@ -282,4 +284,7 @@ class Unreal(Drone):
     time.sleep(2)
     self.client.landAsync().join()
 
-    
+  def getPos(self):
+    v3r = self.getState()['state'].kinematics_estimated.position.to_numpy_array()
+    v3r[2] *= -1
+    return v3r
