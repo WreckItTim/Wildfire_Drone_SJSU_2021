@@ -6,7 +6,7 @@ https://github.com/tonylins/pytorch-mobilenet-v2
 import torch.nn as nn
 import math
 from .utils import load_url
-from mit_semseg.lib.nn import SynchronizedBatchNorm2d
+from scene_parser.mit_semseg.lib.nn import SynchronizedBatchNorm2d
 
 BatchNorm2d = SynchronizedBatchNorm2d
 
