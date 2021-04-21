@@ -3,9 +3,6 @@ import os
 import time
 #import Aerial, Drone, Depth, Segmentation, Decision
 import Drone, Depth, Segmentation
-#TODO: add thread to load modules
-#TODO: add post processing
-
 
 
 st.markdown('Computer Vision Aided Tello Observer')
