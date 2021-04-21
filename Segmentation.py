@@ -44,7 +44,7 @@ class UNET(Vision):
         #if not os.path.exists(write_to_path):
             #os.mkdir(write_to_path)
 
-        height, width = 360, 640
+        #height, width = 360, 640
         transforms = A.Compose([
             #A.Resize(height=height, width=width),
             A.Normalize(
@@ -68,12 +68,12 @@ class UNET(Vision):
             preds = (preds > 0.5).float().squeeze()
 
         # tim edit - cast image to global format (it is messy, there is probably a better way)
-        img = preds.numpy()
-        img = resize(img, (height, width), preserve_range=True)
-        img = Image.fromarray(np.uint8(img*255))
-        # img = utils.convertPIL(img)
-        img.save(write_to_path)
-        # torchvision.utils.save_image(img, f'{write_to_path}/{read_from_path}')
+        #img = preds.numpy()
+        #img = resize(img, (height, width), preserve_range=True)
+        #img = Image.fromarray(np.uint8(img*255))
+        #img = utils.convertPIL(img)
+        #img.save(write_to_path)
+        torchvision.utils.save_image(preds, write_to_path)
 
     def transform_multiclass(self, read_from_path, write_to_path):
         # tim edit - writing to specific file path with full extension, no need to create directory
