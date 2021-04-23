@@ -7,6 +7,7 @@ from vision import Vision
 import Drone, Segmentation,Scene_Parser
 import numpy as np
 import streamlit as st
+from skimage import io
 
 
 # start: module loaders: done this way for caching reasons
@@ -56,16 +57,21 @@ def select_mods():
     aerialObjects_mod = st.sidebar.checkbox('Aerial Objects')
     depth_mod = st.sidebar.checkbox('Depth')
     segmentation_mod = st.sidebar.checkbox('Segmentation')
+    # scene_parse = st.sidebar.checkbox('Scene Parser')
 
     selected_mods = []
     if aerialFire_mod:
-        selected_mods.append('aerialFire_mod')
+        selected_mods.append('aerialFire')
     if aerialObjects_mod:
-        selected_mods.append('aerialObjects_mod')
+        selected_mods.append('aerialObjects')
     if depth_mod:
-        selected_mods.append('depth_mod')
+        selected_mods.append('depth')
     if segmentation_mod:
-        selected_mods.append('segmentation_mod')
+        # selected_mods.append('segmentation')
+        selected_mods.append('smoke')
+    # if scene_parse:
+    #     # selected_mods.append('segmentation')
+    #     selected_mods.append('scene_parse')
     return selected_mods
 
 
@@ -90,6 +96,7 @@ def main():
         'objective': 0,
         'smooth': 1
     }
+    segmentation_slot = st.empty()
 
     # dict to contain all user inputs
     ui = {}
@@ -103,7 +110,7 @@ def main():
     visions = {
         # 'fire': aerial_fire,
         # 'depth': depth,
-        'smoke':segmentation,
+        'smoke': segmentation,
         'scene_parse': scene_parser
     }
     # decision = Decision.Rewards()
@@ -138,6 +145,13 @@ def main():
 
             # only move forward to show further element after these elements are set
             ### start main screen
+            while len(ui['activated_mod'])==0:
+                st.warning('Select at leats one CV module')
+                st.stop()
+
+
+            #TODO: implement RL selection control
+
             st.subheader('Flight parameters')
             col1, col2 = st.beta_columns(2)
             with col1:
@@ -156,6 +170,8 @@ def main():
 
             start = st.button('Start system')
             if start:
+                #TODO: disable button during run
+                # start.enabled = False
                 ### TIM CODE
                 # create unique folder for this run - to log and store data
                 secondsSinceEpoch = time.time()
@@ -230,6 +246,7 @@ def main():
                     # take photos for this timestep
                     drone.takePictures(args['timePath'])
 
+                    print(ui['activated_mod'])
                     # transform vision modules
                     for vision in visions:
                         if vision in ui['activated_mod']:
@@ -237,27 +254,74 @@ def main():
                             args[vision + '_writePath'] = os.path.join(args['timePath'], vision + '.png')
                             args[vision + '_rewardsPath'] = os.path.join(args['timePath'], vision + '_rewards.png')
                             visions[vision].transform(args[vision + '_readPath'], args[vision + '_writePath'])
+                            print(args[vision + '_writePath'])
 
                     # make decision
                     # args = decision.decide(args)
-                    print('progress', args['progress'])
+                    # print('progress', args['progress'])
+                    args["progress"] = 'goal'
 
                     # wait for next time step
                     time.sleep(sample_rate)
 
                     # exit when reached end
                     if args['progress'] == 'goal':
-                        stepthrough = input('Finished! Exit?')
+                        # stepthrough = input('Finished! Exit?')
                         if drone_name == 'tello':
                             drone.flip()
                         break
 
+
                 # clean up
+                im_dir = os.path.join(drone_name, 'runs', ui['user'] + ' ' + timeStamp, 'photos', str(args['timestep']))
                 drone.disconnect()
                 print('buayyyyyeeeee')
-                st.subheader('Run finished!')
-                #TODO: implement image visualization
-            ### end main screen
+                # time.sleep(2)
+                st.subheader('----- Run finished! -----')
+                # TODO: add map image
+                # st.image()
+                # ui['frame_to_view'] = st.text_input(f'Insert frame to view 0 to {args["timestep"]}')
+                # if not ui['frame_to_view']:
+                #     st.warning('insert a value from [0 to {')
+                #     st.stop()
 
+                # original view
+                st.image(io.imread(os.path.join(im_dir, 'Scene.png')), caption='Original frame')
+
+                res_smoke, res_fire = st.beta_columns(2)
+                res_depth, res_parsing = st.beta_columns(2)
+
+                smoke_img = os.path.join(im_dir,'smoke.png')
+                if os.path.exists(smoke_img):
+                    with res_smoke:
+                        st.image( io.imread(smoke_img),
+                                  caption='Smoke segmentation result',
+                                  use_column_width=True)
+
+                depth_img = os.path.join(im_dir, 'depth.png' )
+                if os.path.exists(depth_img):
+                    with res_depth:
+                        st.image( io.imread(depth_img),
+                                  caption='Depth module result',
+                                  use_column_width=True)
+
+                fire_img = os.path.join(im_dir, 'fire.png' )
+                if os.path.exists(fire_img):
+                    with res_fire:
+                        st.image( io.imread(os.path.join(im_dir, 'fire .png')),
+                                  caption='Fire module result',
+                                  use_column_width=True)
+
+                scene_img = os.path.join(im_dir, 'scene_parse.png')
+                if os.path.exists(scene_img):
+                    with res_parsing:
+                        st.image(io.imread(os.path.join(im_dir, 'scene_parse.png')),
+                                 caption = 'Segmentation module result',
+                                 use_column_width=True)
+
+                # TODO: enable start button after run is finished
+                # start.enabled = True
+
+            ### end main screen
 
 main()
