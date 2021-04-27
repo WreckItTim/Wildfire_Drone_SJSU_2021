@@ -103,7 +103,7 @@ def main():
     # RL coefficients
     coefficients = {
         'fire': 0,
-        'depth': 1,
+        'depth': 1.5,
         'smoke': 0,
         'path': 1,
         'objective': 0,
@@ -210,11 +210,11 @@ def main():
                 # TV1 
                 path = np.array([
                     [0, 0, 0]
-                    , [50, 0, 0]
-                    , [100, 0, 0]
-                    , [150, 0, 0]
-                    , [200, 0, 0]
-                    , [250, 0, 0]
+                    , [80, 0, 0]
+                    , [160, 0, 0]
+                    , [240, 0, 0]
+                    , [320, 0, 0]
+                    , [400, 0, 0]
                 ])
             elif drone_name == 'unreal':
                 # Demo 1

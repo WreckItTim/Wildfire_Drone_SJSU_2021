@@ -137,7 +137,7 @@ class Tello(Drone):
     # establish link with drone
     s = self.command('command')
     time.sleep(10)
-    liveStream(None, None)
+    self.liveStream(None, None)
     time.sleep(10)
     
   def liveStream(self, modules, write_folder):
@@ -168,11 +168,11 @@ class Tello(Drone):
       s = self.command('down ' + str(z))
     if z > 0:
       s = self.command('up ' +  str(abs(z)))
-    self.pos += np.array([x, y, z]).astype(int)
+    self.pos += np.array([x, y, z])
 
   def moveTo(self, x, y, z):
     self.command(f'go {x-self.pos[0]} {y-self.pos[1]} {z-self.pos[2]} {self.speed}')
-    self.pos = np.array([x, y, z]).astype(int)
+    self.pos = np.array([x, y, z])
 
   def flip(self, direction=None):
     if direction is None:
@@ -182,7 +182,7 @@ class Tello(Drone):
   def takeOff(self):
     s = self.command('takeoff')
     time.sleep(10)
-    self.pos = (0, 0, 0)
+    self.pos = np.array([0, 0, 0])
 
   def land(self):
     s = self.command('land')
@@ -200,6 +200,8 @@ class Tello(Drone):
     copyfile('satellite.png', os.path.join(path, 'SatelliteObjects.png'))
     copyfile('testfire.png', os.path.join(path, 'SatelliteFire.png'))
 
+  def getPos(self):
+    return self.pos
 
 
 
