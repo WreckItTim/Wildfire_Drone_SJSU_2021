@@ -134,10 +134,9 @@ class Deep(Decision):
       args['progress'] = 'goal'
     
     return args
-    
+ 
 
-
-class Rewards(Decision):
+class Rewards_v1(Decision):
 
   def __init__(self):
     print('Rewards Obj created')
@@ -179,20 +178,18 @@ class Rewards(Decision):
     
     # get path rewards
     currentPosition = drone.getPos().astype(int)
-    print('pos', currentPosition)
     distances = {}
-    #maxDistance = 0
-    #minDistance = 9999999999
+    maxDistance = 0
+    minDistance = 9999999999
     path_length = np.linalg.norm(nextPoint - lastPoint)
     for direction in ongoing_rewards:
         pos = currentPosition + pos_change[direction]
         distances[direction] = np.linalg.norm(nextPoint - pos) + np.linalg.norm(lastPoint - pos)
-        #maxDistance = max(distances[direction], maxDistance)
-        #minDistance = min(distances[direction], minDistance)
+        maxDistance = max(distances[direction], maxDistance)
+        minDistance = min(distances[direction], minDistance)
     for direction in ongoing_rewards:
-        #this_reward = coeffecients['path'] * (1 - (distances[direction] - minDistance) / (maxDistance - minDistance)))
-        this_reward = -1 * coeffecients['path'] * (distances[direction] / path_length) ** 2
-        print(direction, distances[direction], this_reward)
+        this_reward = coeffecients['path'] * (1 - (distances[direction] - minDistance) / (maxDistance - minDistance))
+        #this_reward = -1 * coeffecients['path'] * (distances[direction] / path_length) ** 2
         ongoing_rewards[direction] += this_reward
 
     # get objective rewards
@@ -205,7 +202,6 @@ class Rewards(Decision):
         maxDistance = max(distances[direction], maxDistance)
         minDistance = min(distances[direction], minDistance)
     for direction in ongoing_rewards:
-        #print(direction, distances[direction], coeffecients['objective'] * (1 - (distances[direction] - minDistance) / (maxDistance - minDistance)))
         ongoing_rewards[direction] += coeffecients['objective'] * (1 - (distances[direction] - minDistance) / (maxDistance - minDistance))
 
     # get smoothness rewards
@@ -218,15 +214,14 @@ class Rewards(Decision):
     }
     if lastDirection != '':
         for direction in ongoing_rewards:
-            #x = 0
-            #if lastDirection == direction:
-            #    x = 1
+            x = 0
+            if lastDirection == direction:
+                x = 1
             x = 1
             if opposite[lastDirection] == direction:
                 x = 0
             ongoing_rewards[direction] += coeffecients['smooth'] * x
     
-    print(ongoing_rewards)
     # find optimal choice
     optimal_direction = 'forward'
     max_rewards = ongoing_rewards['forward']
@@ -242,9 +237,18 @@ class Rewards(Decision):
     if optimal_direction == 'down': drone.move(0, 0, -1*drone.speed)
     if optimal_direction == 'up': drone.move(0, 0, drone.speed)
     args['lastDirection'] = optimal_direction
-    print('go', optimal_direction)
 
     # update path
+    currentPosition = drone.getPos().astype(int)
+    last_distance = np.linalg.norm(lastPoint - currentPosition)
+    if pathstep < nSteps:
+        next_distance = np.linalg.norm(nextPoint - currentPosition)
+        if next_distance < drone.distance:
+            args['lastPoint'] = nextPoint
+            args['nextPoint'] = args['path'][pathstep + 1]
+            args['pathstep'] += 1
+    print('go', optimal_direction, 'path', currentPosition, 'from', args['lastPoint'], 'to', args['nextPoint'], 'at', args['pathstep'], 'outta', nSteps)
+    '''
     currentPosition = drone.getPos().astype(int)
     last_distance = np.linalg.norm(lastPoint - currentPosition)
     if pathstep < nSteps:
@@ -254,7 +258,141 @@ class Rewards(Decision):
             args['lastPoint'] = nextPoint
             args['nextPoint'] = args['path'][pathstep + 1]
             args['pathstep'] += 1
-    print('path', currentPosition, args['lastPoint'], args['nextPoint'], args['pathstep'], nSteps)
+    print('go', optimal_direction, 'path', currentPosition, 'from', args['lastPoint'], 'to', args['nextPoint'], 'at', args['pathstep'], 'outta', nSteps)
+    '''
+
+    # check if at objective
+    args['progress'] = 'path'
+    objective_distance = np.linalg.norm(endPoint - currentPosition)
+    if objective_distance < 2*drone.distance:
+      args['progress'] = 'goal'
+    
+    return args
+
+
+    
+
+class Rewards_v2(Decision):
+
+  def __init__(self):
+    print('Rewards Obj created')
+
+  def decide(self, args):
+    timestep = args['timestep']
+    drone = args['drone']
+    path = args['path']
+    nextPoint = args['nextPoint']
+    lastPoint = args['lastPoint']
+    startPoint = args['startPoint']
+    endPoint = args['endPoint']
+    pathstep = args['pathstep']
+    nSteps = args['nSteps']
+    lastDirection = args['lastDirection']
+    visions = args['visions']
+    coeffecients = args['coefficients']
+
+    ongoing_rewards = {
+        'left':0
+        ,'right':0
+        ,'up':0
+        ,'down':0
+        ,'forward':0
+    }
+    pos_change = {
+        'left':np.array([0, -1*drone.distance, 0])
+        ,'right':np.array([0, drone.distance, 0])
+        ,'up':np.array([0, 0, drone.distance])
+        ,'down':np.array([0, 0, -1*drone.distance])
+        ,'forward':np.array([drone.distance, 0, 0])
+    }
+
+    # get vision rewards
+    for vision in visions:
+        rewards_per_direction = visions[vision].reward(args[vision + '_writePath'], args[vision + '_rewardsPath'])
+        for direction in rewards_per_direction:
+            ongoing_rewards[direction] += coeffecients[vision] * rewards_per_direction[direction]
+    
+    # get path rewards
+    currentPosition = drone.getPos().astype(int)
+    distances = {}
+    maxDistance = 0
+    minDistance = 9999999999
+    path_length = np.linalg.norm(nextPoint - lastPoint)
+    for direction in ongoing_rewards:
+        pos = currentPosition + pos_change[direction]
+        distances[direction] = np.linalg.norm(nextPoint - pos) + np.linalg.norm(lastPoint - pos)
+        maxDistance = max(distances[direction], maxDistance)
+        minDistance = min(distances[direction], minDistance)
+    for direction in ongoing_rewards:
+        this_reward = coeffecients['path'] * (1 - (distances[direction] - minDistance) / (maxDistance - minDistance))
+        #this_reward = -1 * coeffecients['path'] * (distances[direction] / path_length) ** 2
+        ongoing_rewards[direction] += this_reward
+
+    # get objective rewards
+    distances = {}
+    maxDistance = 0
+    minDistance = 9999999999
+    for direction in ongoing_rewards:
+        pos = currentPosition + pos_change[direction]
+        distances[direction] = np.linalg.norm(endPoint - pos) + np.linalg.norm(endPoint - pos)
+        maxDistance = max(distances[direction], maxDistance)
+        minDistance = min(distances[direction], minDistance)
+    for direction in ongoing_rewards:
+        ongoing_rewards[direction] += coeffecients['objective'] * (1 - (distances[direction] - minDistance) / (maxDistance - minDistance))
+
+    # get smoothness rewards
+    opposite = {
+        'left':'right'
+        ,'right':'left'
+        ,'up':'down'
+        ,'down':'up'
+        ,'forward':'backward'
+    }
+    if lastDirection != '':
+        for direction in ongoing_rewards:
+            x = 1
+            if opposite[lastDirection] == direction:
+                x = 0
+            ongoing_rewards[direction] += coeffecients['smooth'] * x
+    
+    # find optimal choice
+    optimal_direction = 'forward'
+    max_rewards = ongoing_rewards['forward']
+    for direction in ongoing_rewards:
+        if ongoing_rewards[direction] > max_rewards:
+            max_rewards = ongoing_rewards[direction]
+            optimal_direction = direction
+    
+    # make optimal choice
+    if optimal_direction == 'right': drone.move(0, drone.speed, 0)
+    if optimal_direction == 'left': drone.move(0, -1*drone.speed, 0)
+    if optimal_direction == 'forward': drone.move(drone.speed, 0, 0)
+    if optimal_direction == 'down': drone.move(0, 0, -1*drone.speed)
+    if optimal_direction == 'up': drone.move(0, 0, drone.speed)
+    args['lastDirection'] = optimal_direction
+
+    # update path
+    currentPosition = drone.getPos().astype(int)
+    last_distance = np.linalg.norm(lastPoint - currentPosition)
+    if pathstep < nSteps:
+        next_distance = np.linalg.norm(nextPoint - currentPosition)
+        if next_distance < drone.distance:
+            args['lastPoint'] = nextPoint
+            args['nextPoint'] = args['path'][pathstep + 1]
+            args['pathstep'] += 1
+    print('go', optimal_direction, 'path', currentPosition, 'from', args['lastPoint'], 'to', args['nextPoint'], 'at', args['pathstep'], 'outta', nSteps)
+    '''
+    currentPosition = drone.getPos().astype(int)
+    last_distance = np.linalg.norm(lastPoint - currentPosition)
+    if pathstep < nSteps:
+        next_distance = np.linalg.norm(nextPoint[:2] - currentPosition[:2])
+        next_next_distance = np.linalg.norm(args['path'][pathstep + 1] - currentPosition)
+        if next_distance < 2*drone.distance or next_next_distance < last_distance:
+            args['lastPoint'] = nextPoint
+            args['nextPoint'] = args['path'][pathstep + 1]
+            args['pathstep'] += 1
+    print('go', optimal_direction, 'path', currentPosition, 'from', args['lastPoint'], 'to', args['nextPoint'], 'at', args['pathstep'], 'outta', nSteps)
+    '''
 
     # check if at objective
     args['progress'] = 'path'
