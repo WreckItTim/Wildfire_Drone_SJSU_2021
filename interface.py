@@ -35,7 +35,7 @@ decision = Decision.Rewards()
 # set RL reward coefficients
 coefficients = {
 	'fire' : 0,
-	'depth' : 1,
+	'depth' : 2,
 	'smoke' : 0,
 	'path' : 1,
 	'objective' : 0,

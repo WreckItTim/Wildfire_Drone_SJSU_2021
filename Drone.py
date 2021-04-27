@@ -74,7 +74,8 @@ def stream(modules, write_folder):
   
     #counter += 1
     ret, frame = camera.read()
-    Tello.imgs[0] = frame
+    Tello.imgs[Tello.img_idx] = frame
+    Tello.img_idx += 1
     #if counter % 100 == 0:
         #read_path = os.path.join(write_folder, 'Raw_' + str(counter/100) + '.png')
         #im = Image.fromarray(frame)
@@ -100,7 +101,8 @@ def stream(modules, write_folder):
   cv2.destroyAllWindows()
 
 class Tello(Drone):
-  imgs = [None]
+  imgs = [None] * 10000
+  img_idx = 0
   camThread = None
   streaming = False
   def __init__(self):
@@ -134,7 +136,9 @@ class Tello(Drone):
     self.recvThread.start()
     # establish link with drone
     s = self.command('command')
-    time.sleep(5)
+    time.sleep(10)
+    liveStream(None, None)
+    time.sleep(10)
     
   def liveStream(self, modules, write_folder):
     s = self.command('streamon')
@@ -184,13 +188,13 @@ class Tello(Drone):
     s = self.command('land')
     
   def takePictures(self, folderPath, index=0):
-    s = self.command('streamon')
-    camera = cv2.VideoCapture('udp://127.0.0.1:11111')
-    ret, frame = camera.read()
-    #frame = Tello.imgs[0]
+    #s = self.command('streamon')
+    #camera = cv2.VideoCapture('udp://127.0.0.1:11111')
+    #ret, frame = camera.read()
+    frame = Tello.imgs[Tello.img_idx - 1]
     cv2.imwrite(os.path.join(folderPath, 'Scene.png'), frame)
-    camera.release()
-    s = self.command('streamoff')
+    #camera.release()
+    #s = self.command('streamoff')
 
   def snapAerial(self, path):
     copyfile('satellite.png', os.path.join(path, 'SatelliteObjects.png'))

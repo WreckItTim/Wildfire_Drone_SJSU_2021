@@ -62,7 +62,7 @@ class MonoDepth2(Vision):
         else:
           raise Exception("Can not find args.image_path: {}".format(image_path))
 
-        print("-> Predicting on {:d} test images".format(len(paths)))
+        #print("-> Predicting on {:d} test images".format(len(paths)))
 
         with torch.no_grad():
             for idx, image_path in enumerate(paths):
@@ -111,7 +111,7 @@ class MonoDepth2(Vision):
                     name_dest_im = os.path.join(output_directory, "{}_disp.jpeg".format(output_name))
                 im.save(name_dest_im)
 
-                print("   Processed {:d} of {:d} images - saved prediction to {}".format(
-                    idx + 1, len(paths), name_dest_im))
+                #print("   Processed {:d} of {:d} images - saved prediction to {}".format(
+                #    idx + 1, len(paths), name_dest_im))
 
-        print('-> Done!')
+        #print('-> Done!')

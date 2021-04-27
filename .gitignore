@@ -1,6 +1,8 @@
 multires_aug.pb
 bin_checkpoint.pth.tar
 my_checkpoint.pth.tar
+multi_class_checkpoint.pth.tar
 /depth
 /scene_parser/ckpt/
 /scene_parser/.idea
+TrialSlides.pptx
