@@ -44,12 +44,12 @@ class Vision:
         img = img * 255
         if write_to_path is not None:
           for direction in positions:
-            x = int(width_cut*positions[direction][0] + width_cut/2)
+            x = int(width_cut*positions[direction][0] + width_cut/2.5)
             y = int(height_cut*positions[direction][1] + height_cut/2)
             #bufferSize = 64
             #cv2.rectangle(img, (x-bufferSize, y-bufferSize), (x + bufferSize, y + bufferSize), (0,0,0), -1)
-            cv2.putText(img, str(round(rewards[direction],2)), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 4, cv2.LINE_AA)
-            cv2.putText(img, str(round(rewards[direction],2)), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
+            cv2.putText(img, str(round(rewards[direction],2)), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 0), 20, cv2.LINE_AA)
+            cv2.putText(img, str(round(rewards[direction],2)), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 0, 0), 5, cv2.LINE_AA)
           cv2.imwrite(write_to_path, img)
 
         return rewards
