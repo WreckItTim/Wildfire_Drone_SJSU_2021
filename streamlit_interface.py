@@ -51,7 +51,7 @@ def select_drone():
     elif drone_name == 'unreal':
         drone = Drone.Unreal()
         drone.speed = 5
-        drone.duration = 2
+        drone.duration = 1
         drone.distance = 5
 
     return drone, drone_name
@@ -125,7 +125,7 @@ def main():
         #'smoke': segmentation,
         #'scene_parse': scene_parser
     }
-    decision = Decision.Rewards_v2()
+    decision = Decision.Rewards_v3()
 
     # if aerial_fire and aerial_building and depth and segmentation and scene_parser:
     #if segmentation and scene_parser:

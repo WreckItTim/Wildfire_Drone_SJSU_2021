@@ -30,7 +30,7 @@ visions = {
 #decision = Decision.Input()
 #decision = Decision.Path()
 #decision = Decision.Deep()
-decision = Decision.Rewards()
+decision = Decision.Rewards_v3()
 
 # set RL reward coefficients
 coefficients = {

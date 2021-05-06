@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import os
 import time
 import numpy as np
+import math
 from tensorflow.keras.preprocessing import image
 from keras import layers, regularizers, optimizers, activations
 from keras.layers import Flatten, Dense
@@ -423,18 +424,29 @@ class Rewards_v3(Decision):
     coeffecients = args['coefficients']
 
     ongoing_rewards = {
-        'left':0
+        'forward':0
+        ,'left':0
         ,'right':0
         ,'up':0
         ,'down':0
-        ,'forward':0
+        ,'diagUpLeft':0
+        ,'diagDownLeft':0
+        ,'diagUpRight':0
+        ,'diagDownRight':0
     }
+    diagDistance = drone.distance/math.sqrt(3)
+    sideDistance = drone.distance/math.sqrt(2)
+    straightDistance = drone.distance
     pos_change = {
-        'left':np.array([0, -1*drone.distance, 0])
-        ,'right':np.array([0, drone.distance, 0])
-        ,'up':np.array([0, 0, drone.distance])
-        ,'down':np.array([0, 0, -1*drone.distance])
-        ,'forward':np.array([drone.distance, 0, 0])
+        'forward':np.array([straightDistance, 0, 0])
+        ,'left':np.array([sideDistance, -1*sideDistance, 0])
+        ,'right':np.array([sideDistance, sideDistance, 0])
+        ,'up':np.array([sideDistance, 0, sideDistance])
+        ,'down':np.array([sideDistance, 0, -1*sideDistance])
+        ,'diagUpLeft':np.array([diagDistance, -1*diagDistance, diagDistance])
+        ,'diagDownLeft':np.array([diagDistance, -1*diagDistance, -1*diagDistance])
+        ,'diagUpRight':np.array([diagDistance, diagDistance, diagDistance])
+        ,'diagDownRight':np.array([diagDistance, diagDistance, -1*diagDistance])
     }
 
     # get vision rewards
@@ -473,11 +485,15 @@ class Rewards_v3(Decision):
 
     # get smoothness rewards
     opposite = {
-        'left':'right'
+        'forward':'backward'
+        ,'left':'right'
         ,'right':'left'
         ,'up':'down'
         ,'down':'up'
-        ,'forward':'backward'
+        ,'diagUpLeft':'diagDownRight'
+        ,'diagDownLeft':'diagUpRight'
+        ,'diagUpRight':'diagDownLeft'
+        ,'diagDownRight':'diagUpLeft'
     }
     if lastDirection != '':
         for direction in ongoing_rewards:
@@ -495,11 +511,18 @@ class Rewards_v3(Decision):
             optimal_direction = direction
     
     # make optimal choice
-    if optimal_direction == 'right': drone.move(0, drone.speed, 0)
-    if optimal_direction == 'left': drone.move(0, -1*drone.speed, 0)
-    if optimal_direction == 'forward': drone.move(drone.speed, 0, 0)
-    if optimal_direction == 'down': drone.move(0, 0, -1*drone.speed)
-    if optimal_direction == 'up': drone.move(0, 0, drone.speed)
+    diagSpeed = drone.distance/math.sqrt(3)
+    sideSpeed = drone.distance/math.sqrt(2)
+    straightSpeed = drone.distance
+    if optimal_direction == 'forward': drone.move(straightSpeed, 0, 0)
+    elif optimal_direction == 'right': drone.move(sideSpeed, sideSpeed, 0)
+    elif optimal_direction == 'left': drone.move(sideSpeed, -1*sideSpeed, 0)
+    elif optimal_direction == 'down': drone.move(sideSpeed, 0, -1*sideSpeed)
+    elif optimal_direction == 'up': drone.move(sideSpeed, 0, sideSpeed)
+    elif optimal_direction == 'diagUpLeft': drone.move(diagSpeed, -1*diagSpeed, diagSpeed)
+    elif optimal_direction == 'diagDownLeft': drone.move(diagSpeed, -1*diagSpeed, -1*diagSpeed)
+    elif optimal_direction == 'diagUpRight': drone.move(diagSpeed, diagSpeed, diagSpeed)
+    elif optimal_direction == 'diagDownRight': drone.move(diagSpeed, diagSpeed, -1*diagSpeed)
     args['lastDirection'] = optimal_direction
 
     # update path
@@ -512,7 +535,7 @@ class Rewards_v3(Decision):
             args['lastPoint'] = nextPoint
             args['nextPoint'] = args['path'][pathstep + 1]
             args['pathstep'] += 1
-    print('go', optimal_direction, 'path', currentPosition, 'from', args['lastPoint'], 'to', args['nextPoint'], 'at', args['pathstep'], 'outta', nSteps)
+    print('go', optimal_direction, 'to', currentPosition, 'between', args['lastPoint'], 'and', args['nextPoint'], 'at', args['pathstep'], 'of', nSteps)
 
     # check if at objective
     args['progress'] = 'path'

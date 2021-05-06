@@ -24,6 +24,10 @@ class Vision:
             ,'up':(1, 0)
             ,'down':(1, 2)
             ,'forward':(1, 1)
+            ,'diagUpLeft':(0, 0)
+            ,'diagDownLeft':(0, 2)
+            ,'diagUpRight':(2, 0)
+            ,'diagDownRight':(2, 2)
         }
         rewards = {
             'left':0
@@ -31,6 +35,10 @@ class Vision:
             ,'up':0
             ,'down':0
             ,'forward':0
+            ,'diagUpLeft':0
+            ,'diagDownLeft':0
+            ,'diagUpRight':0
+            ,'diagDownRight':0
         }
 
         for direction in positions:
@@ -48,7 +56,7 @@ class Vision:
             y = int(height_cut*positions[direction][1] + height_cut/2)
             #bufferSize = 64
             #cv2.rectangle(img, (x-bufferSize, y-bufferSize), (x + bufferSize, y + bufferSize), (0,0,0), -1)
-            cv2.putText(img, str(round(rewards[direction],2)), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 4, cv2.LINE_AA)
+            cv2.putText(img, str(round(rewards[direction],2)), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 7, cv2.LINE_AA)
             cv2.putText(img, str(round(rewards[direction],2)), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
           cv2.imwrite(write_to_path, img)
 
