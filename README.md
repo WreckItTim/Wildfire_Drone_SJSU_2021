@@ -9,3 +9,5 @@ Each component of this code is heavily modulated to rotate in/out different mode
 and can easily be adjusted to connect to any other drone or simulation enviornment.
 
 We have a user interface built with streamlit.io, or the user can dive into the code to make simple edits.
+
+To run streamlit UI, launch from terminal: "streamlit run streamlit_interface.py"
