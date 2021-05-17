@@ -154,7 +154,7 @@ class Rewards_v1(Decision):
     nSteps = args['nSteps']
     lastDirection = args['lastDirection']
     visions = args['visions']
-    coeffecients = args['coefficients']
+    coefficients = args['coefficients']
 
     ongoing_rewards = {
         'left':0
@@ -175,7 +175,7 @@ class Rewards_v1(Decision):
     for vision in visions:
         rewards_per_direction = visions[vision].reward(args[vision + '_writePath'], args[vision + '_rewardsPath'])
         for direction in rewards_per_direction:
-            ongoing_rewards[direction] += coeffecients[vision] * rewards_per_direction[direction]
+            ongoing_rewards[direction] += coefficients[vision] * rewards_per_direction[direction]
     
     # get path rewards
     currentPosition = drone.getPos().astype(int)
@@ -189,8 +189,8 @@ class Rewards_v1(Decision):
         maxDistance = max(distances[direction], maxDistance)
         minDistance = min(distances[direction], minDistance)
     for direction in ongoing_rewards:
-        this_reward = coeffecients['path'] * (1 - (distances[direction] - minDistance) / (maxDistance - minDistance))
-        #this_reward = -1 * coeffecients['path'] * (distances[direction] / path_length) ** 2
+        this_reward = coefficients['path'] * (1 - (distances[direction] - minDistance) / (maxDistance - minDistance))
+        #this_reward = -1 * coefficients['path'] * (distances[direction] / path_length) ** 2
         ongoing_rewards[direction] += this_reward
 
     # get objective rewards
@@ -203,7 +203,7 @@ class Rewards_v1(Decision):
         maxDistance = max(distances[direction], maxDistance)
         minDistance = min(distances[direction], minDistance)
     for direction in ongoing_rewards:
-        ongoing_rewards[direction] += coeffecients['objective'] * (1 - (distances[direction] - minDistance) / (maxDistance - minDistance))
+        ongoing_rewards[direction] += coefficients['objective'] * (1 - (distances[direction] - minDistance) / (maxDistance - minDistance))
 
     # get smoothness rewards
     opposite = {
@@ -221,7 +221,7 @@ class Rewards_v1(Decision):
             x = 1
             if opposite[lastDirection] == direction:
                 x = 0
-            ongoing_rewards[direction] += coeffecients['smooth'] * x
+            ongoing_rewards[direction] += coefficients['smooth'] * x
     
     # find optimal choice
     optimal_direction = 'forward'
@@ -290,7 +290,7 @@ class Rewards_v2(Decision):
     nSteps = args['nSteps']
     lastDirection = args['lastDirection']
     visions = args['visions']
-    coeffecients = args['coefficients']
+    coefficients = args['coefficients']
 
     ongoing_rewards = {
         'left':0
@@ -311,7 +311,7 @@ class Rewards_v2(Decision):
     for vision in visions:
         rewards_per_direction = visions[vision].reward(args[vision + '_writePath'], args[vision + '_rewardsPath'])
         for direction in rewards_per_direction:
-            ongoing_rewards[direction] += coeffecients[vision] * rewards_per_direction[direction]
+            ongoing_rewards[direction] += coefficients[vision] * rewards_per_direction[direction]
     
     # get path rewards
     currentPosition = drone.getPos().astype(int)
@@ -325,8 +325,8 @@ class Rewards_v2(Decision):
         maxDistance = max(distances[direction], maxDistance)
         minDistance = min(distances[direction], minDistance)
     for direction in ongoing_rewards:
-        this_reward = coeffecients['path'] * (1 - (distances[direction] - minDistance) / (maxDistance - minDistance))
-        #this_reward = -1 * coeffecients['path'] * (distances[direction] / path_length) ** 2
+        this_reward = coefficients['path'] * (1 - (distances[direction] - minDistance) / (maxDistance - minDistance))
+        #this_reward = -1 * coefficients['path'] * (distances[direction] / path_length) ** 2
         ongoing_rewards[direction] += this_reward
 
     # get objective rewards
@@ -339,7 +339,7 @@ class Rewards_v2(Decision):
         maxDistance = max(distances[direction], maxDistance)
         minDistance = min(distances[direction], minDistance)
     for direction in ongoing_rewards:
-        ongoing_rewards[direction] += coeffecients['objective'] * (1 - (distances[direction] - minDistance) / (maxDistance - minDistance))
+        ongoing_rewards[direction] += coefficients['objective'] * (1 - (distances[direction] - minDistance) / (maxDistance - minDistance))
 
     # get smoothness rewards
     opposite = {
@@ -354,7 +354,7 @@ class Rewards_v2(Decision):
             x = 1
             if opposite[lastDirection] == direction:
                 x = 0
-            ongoing_rewards[direction] += coeffecients['smooth'] * x
+            ongoing_rewards[direction] += coefficients['smooth'] * x
     
     # find optimal choice
     optimal_direction = 'forward'
@@ -421,7 +421,7 @@ class Rewards_v3(Decision):
     nSteps = args['nSteps']
     lastDirection = args['lastDirection']
     visions = args['visions']
-    coeffecients = args['coefficients']
+    coefficients = args['coefficients']
 
     ongoing_rewards = {
         'forward':0
@@ -453,22 +453,22 @@ class Rewards_v3(Decision):
     for vision in visions:
         rewards_per_direction = visions[vision].reward(args[vision + '_writePath'], args[vision + '_rewardsPath'])
         for direction in rewards_per_direction:
-            ongoing_rewards[direction] += coeffecients[vision] * rewards_per_direction[direction]
+            ongoing_rewards[direction] += coefficients[vision] * rewards_per_direction[direction]
     
     # get path rewards
     currentPosition = drone.getPos().astype(int)
     distances = {}
     maxDistance = 0
     minDistance = 9999999999
-    path_length = np.linalg.norm(nextPoint - lastPoint)
+    path_length = np.linalg.norm(nextPoint[:2] - lastPoint[:2])
     for direction in ongoing_rewards:
         pos = currentPosition + pos_change[direction]
-        distances[direction] = np.linalg.norm(nextPoint - pos) + np.linalg.norm(lastPoint - pos)
+        distances[direction] = np.linalg.norm(nextPoint[:2] - pos[:2]) + np.linalg.norm(lastPoint[:2] - pos[:2])
         maxDistance = max(distances[direction], maxDistance)
         minDistance = min(distances[direction], minDistance)
     for direction in ongoing_rewards:
-        #this_reward = coeffecients['path'] * (1 - (distances[direction] - minDistance) / (maxDistance - minDistance))
-        this_reward = -1 * coeffecients['path'] * (distances[direction] / path_length) ** 2
+        #this_reward = coefficients['path'] * (1 - (distances[direction] - minDistance) / (maxDistance - minDistance))
+        this_reward = -1 * coefficients['path'] * (distances[direction] / path_length) ** 2
         ongoing_rewards[direction] += this_reward
 
     # get objective rewards
@@ -481,7 +481,7 @@ class Rewards_v3(Decision):
         maxDistance = max(distances[direction], maxDistance)
         minDistance = min(distances[direction], minDistance)
     for direction in ongoing_rewards:
-        ongoing_rewards[direction] += coeffecients['objective'] * (1 - (distances[direction] - minDistance) / (maxDistance - minDistance))
+        ongoing_rewards[direction] += coefficients['objective'] * (1 - (distances[direction] - minDistance) / (maxDistance - minDistance))
 
     # get smoothness rewards
     opposite = {
@@ -500,7 +500,7 @@ class Rewards_v3(Decision):
             x = 1
             if opposite[lastDirection] == direction:
                 x = 0
-            ongoing_rewards[direction] += coeffecients['smooth'] * x
+            ongoing_rewards[direction] += coefficients['smooth'] * x
     
     # find optimal choice
     optimal_direction = 'forward'
@@ -535,7 +535,7 @@ class Rewards_v3(Decision):
             args['lastPoint'] = nextPoint
             args['nextPoint'] = args['path'][pathstep + 1]
             args['pathstep'] += 1
-    print('go', optimal_direction, 'to', currentPosition, 'between', args['lastPoint'], 'and', args['nextPoint'], 'at', args['pathstep'], 'of', nSteps)
+    print('go', optimal_direction, 'from', currentPosition, 'between', args['lastPoint'], 'and', args['nextPoint'], 'at', args['pathstep'], 'of', nSteps)
 
     # check if at objective
     args['progress'] = 'path'

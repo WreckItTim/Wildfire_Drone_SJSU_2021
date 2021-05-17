@@ -227,13 +227,14 @@ def main():
                 #    ,[170, -70, -20]
                 #])
                 # Moutain1
+                # unreal pos = [47214.566406, 77266.492188, 21884.542969]
                 path = np.array([
-                    [0, 0, 0]
-                    , [40, 0, 0]
-                    , [80, 0, 0]
-                    , [120, 0, 0]
-                    , [160, 0, 0]
-                    , [200, 0, 0]
+                    [0, 0, 100]
+                    , [40, 0, 100]
+                    , [80, 0, 100]
+                    , [120, 0, 100]
+                    , [160, 0, 100]
+                    , [200, 0, 100]
                 ])
 
             # connect to drone
@@ -263,6 +264,9 @@ def main():
             rewards_holder = st.empty()
             while (True):
                 # stepthrough = input('Next Timestep?')
+                drone.move(4, 0, 0)
+                print(drone.getPos().astype(int))
+                continue
 
                 # move one timestep up
                 args['timestep'] += 1

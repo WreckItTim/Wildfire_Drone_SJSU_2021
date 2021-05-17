@@ -291,6 +291,9 @@ class Unreal(Drone):
     self.client.landAsync().join()
 
   def getPos(self):
-    v3r = self.getState()['state'].kinematics_estimated.position.to_numpy_array()
-    v3r[2] *= -1
+    state = self.getState()  
+    v3r = state['state'].kinematics_estimated.position.to_numpy_array()
+    altitude = state['gps'].gnss.geo_point.altitude
+    #v3r[2] *= -1
+    v3r[2] = altitude
     return v3r
