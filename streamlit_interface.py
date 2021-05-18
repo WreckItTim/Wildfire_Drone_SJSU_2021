@@ -3,7 +3,7 @@ import time
 import os
 from PIL import Image
 from vision import Vision
-# import Drone, Depth, Segmentation, Decision, Aerial, Scene_Parser
+import Aerial 
 import Depth, Decision
 import Drone, Segmentation, Scene_Parser
 import numpy as np
@@ -13,14 +13,12 @@ from skimage import io
 
 
 # start: module loaders: done this way for caching reasons
-# @st.cache(hash_funcs={Aerial.Fire:id})
-# def load_aerial_fire():
-#     return Aerial.Fire()
-#
-# @st.cache(hash_funcs={Aerial.Building:id})
-# def load_aerial_building():
-#     return Aerial.Building()
-#
+@st.cache(hash_funcs={Aerial.Fire:id})
+def load_aerial_fire():
+    return Aerial.Fire()
+@st.cache(hash_funcs={Aerial.Building:id})
+def load_aerial_building():
+    return Aerial.Building()
 @st.cache(hash_funcs={Depth.MonoDepth2:id})
 def load_depth():
     return Depth.MonoDepth2()
@@ -60,25 +58,21 @@ def select_drone():
 def select_mods():
     st.sidebar.text('_________________________________')
     st.sidebar.text('Select vision modules to activate:')
-    aerialFire_mod = st.sidebar.checkbox('Fire Segmentation')
-    aerialObjects_mod = st.sidebar.checkbox('Smoke Segmentation')
+    fire_mod = st.sidebar.checkbox('Fire Segmentation')
+    smoke_mod = st.sidebar.checkbox('Smoke Segmentation')
     depth_mod = st.sidebar.checkbox('Depth Estimation')
-    segmentation_mod = st.sidebar.checkbox('Object Detection')
-    # scene_parse = st.sidebar.checkbox('Scene Parser')
+    #parser_mod = st.sidebar.checkbox('Scene Parser')
 
     selected_mods = []
-    if aerialFire_mod:
-        selected_mods.append('aerialFire')
-    if aerialObjects_mod:
-        selected_mods.append('aerialObjects')
+    if fire_mod:
+        selected_mods.append('fire')
+    if smoke_mod:
+        selected_mods.append('smoke')
     if depth_mod:
         selected_mods.append('depth')
-    if segmentation_mod:
-        # selected_mods.append('segmentation')
-        selected_mods.append('smoke')
-    # if scene_parse:
-    #     # selected_mods.append('segmentation')
-    #     selected_mods.append('scene_parse')
+    #if parser_mod:
+    #    selected_mods.append('parser')
+
     return selected_mods
 
 
@@ -90,13 +84,13 @@ def select_rl():
     fr = st.sidebar.checkbox('Free Roam')
     sp = st.sidebar.checkbox('Static Path')
     if gir:
-        return 'Greedy Immediate Rewards'
+        return 'greedy'
     elif dql:
-        return 'Deep Q-Learning'
+        return 'deep'
     elif fr:
-        return 'Free Roam'
+        return 'free'
     elif sp:
-        return 'Static Path'
+        return 'path'
 
 
 def main():
@@ -110,22 +104,6 @@ def main():
         'smooth': 1
     }
     segmentation_slot = st.empty()
-
-    # dict to contain all user inputs
-    #aerial_fire = load_aerial_fire()
-    #aerial_building = load_aerial_building()
-    depth = load_depth()
-    #segmentation = load_segmentation()
-    #scene_parser = load_scene_parser()
-
-    # define modules
-    visions = {
-        #'fire': aerial_fire,
-        'depth': depth,
-        #'smoke': segmentation,
-        #'scene_parse': scene_parser
-    }
-    decision = Decision.Rewards_v3()
 
     # if aerial_fire and aerial_building and depth and segmentation and scene_parser:
     #if segmentation and scene_parser:
@@ -143,50 +121,47 @@ def main():
     if ui['user'] == '':
         st.warning('Insert valid user')
         st.stop()
+
     # select_mods(user)
     drone, drone_name = select_drone()
     ui['drone'], ui['drone_name'] = drone, drone_name
 
-    #st.subheader(f'Hi {ui["user"]}, you are using {ui["drone_name"]}')
-
     # select mods
     if (ui['user'] != '') and (ui['drone_name']!=''):
-        ui['activated_mod'] = select_mods()
-        ui['decision_mods'] = select_rl()
+        ui['vision_mods'] = select_mods()
+        ui['decision_mod'] = select_rl()
 
-        # only move forward to show further element after these elements are set
-        ### start main screen
-        #while len(ui['activated_mod'])==0:
-        #    st.warning('Select at least one CV module')
-        #    st.stop()
-
-
-        #TODO: implement RL selection control
-
-        
-        #st.subheader('Flight parameters')
-        #col1, col2 = st.beta_columns(2)
-        #with col1:
-        #    ui['distance_ts'] = st.text_input('Insert distance to cover per timestep')
-        #    if not ui['distance_ts']: #TODO implement regex
-        #        st.warning('This field cannot be null')
-        #        st.stop()
-        #with col2:
-        #    ui['drone_speed'] = st.text_input('Insert drone speed', value=5)
-        #    if not ui['drone_speed']:
-        #        ui['drone_speed'] = 5
-        #
-        #    drone.speed = ui['drone_speed']
-        #    drone.duration = 1
-        #    drone.distance = 5 # ui['distance_ts']
-        
 
         start = st.sidebar.button('Start Run')
         if start:
-            #TODO: disable button during run
-            # start.enabled = False
-            ### TIM CODE
-            # create unique folder for this run - to log and store data
+
+            print(ui['vision_mods'])
+            print(ui['decision_mod'])
+
+            # set computer vision modules to view
+            visions = {
+            }
+            if 'fire' in ui['vision_mods']:
+                visions['fire'] = load_aerial_fire()
+            if 'smoke' in ui['vision_mods']:
+                visions['smoke'] = load_segmentation()
+            if 'depth' in ui['vision_mods']:
+                visions['depth'] = load_depth()
+            if 'parser' in ui['vision_mods']:
+                visions['parser'] = load_scene_parser()
+    
+            if ui['decision_mod'] == 'greedy':
+                decision = Decision.Rewards_v3()
+            if ui['decision_mod'] == 'free':
+                decision = Decision.Input()
+            if ui['decision_mod'] == 'deep':
+                decision = Decision.Deep()
+            if ui['decision_mod'] == 'path':
+                decision = Decision.Path()
+
+            print(ui['vision_mods'])
+            print(ui['decision_mod'])
+
             secondsSinceEpoch = time.time()
             timeObj = time.localtime(secondsSinceEpoch)
             timeStamp = '%d-%d-%d %d-%d-%d' % (
@@ -264,9 +239,6 @@ def main():
             rewards_holder = st.empty()
             while (True):
                 # stepthrough = input('Next Timestep?')
-                drone.move(4, 0, 0)
-                print(drone.getPos().astype(int))
-                continue
 
                 # move one timestep up
                 args['timestep'] += 1
@@ -280,10 +252,8 @@ def main():
                             )
                 
                 # transform vision modules and display
-                #print(ui['activated_mod'])
                 cols = vision_holder.beta_columns(len(visions))
                 for vI, vision in enumerate(visions):
-                    #if vision in ui['activated_mod']:
                     args[vision + '_readPath'] = os.path.join(args['timePath'], 'Scene.png')
                     args[vision + '_writePath'] = os.path.join(args['timePath'], vision + '.png')
                     args[vision + '_rewardsPath'] = os.path.join(args['timePath'], vision + '_rewards.png')
@@ -319,55 +289,8 @@ def main():
                     break
 
             # clean up
-            #im_dir = args['timePath'] #os.path.join(drone_name, 'runs', ui['user'] + ' ' + timeStamp, 'photos', str(args['timestep']))
             drone.disconnect()
             print('buayyyyyeeeee')
-            # time.sleep(2)
             st.subheader('----- Run finished! -----')
-            # TODO: add map image
-            # st.image()
-            # ui['frame_to_view'] = st.text_input(f'Insert frame to view 0 to {args["timestep"]}')
-            # if not ui['frame_to_view']:
-            #     st.warning('insert a value from [0 to {')
-            #     st.stop()
-
-            # original view
-            st.image(io.imread(os.path.join(im_dir, 'Scene.png')), caption='Original frame')
-
-            res_smoke, res_fire = st.beta_columns(2)
-            res_depth, res_parsing = st.beta_columns(2)
-
-            smoke_img = os.path.join(im_dir,'smoke.png')
-            if os.path.exists(smoke_img):
-                with res_smoke:
-                    st.image( io.imread(smoke_img),
-                                caption='Smoke segmentation result',
-                                use_column_width=True)
-
-            depth_img = os.path.join(im_dir, 'depth.png' )
-            if os.path.exists(depth_img):
-                with res_depth:
-                    st.image( io.imread(depth_img),
-                                caption='Depth module result',
-                                use_column_width=True)
-
-            fire_img = os.path.join(im_dir, 'fire.png' )
-            if os.path.exists(fire_img):
-                with res_fire:
-                    st.image( io.imread(os.path.join(im_dir, 'fire .png')),
-                                caption='Fire module result',
-                                use_column_width=True)
-
-            scene_img = os.path.join(im_dir, 'scene_parse.png')
-            if os.path.exists(scene_img):
-                with res_parsing:
-                    st.image(io.imread(os.path.join(im_dir, 'scene_parse.png')),
-                                caption = 'Segmentation module result',
-                                use_column_width=True)
-
-            # TODO: enable start button after run is finished
-            # start.enabled = True
-
-        ### end main screen
 
 main()
