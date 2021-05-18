@@ -19,4 +19,6 @@ https://www.youtube.com/playlist?list=PL68q5Piilhq70QzjtMliZv0Uw3WYOBorr
 Within either the unreal or tello folder, the reader can find outputs for each run at each time step,
 such as various computer vision transformations.
 
-The current state of the streamlit_interface will set the drone on a short path forwrad, using simple immediate greedy rewards and depth to try and avoid obsticales. Some editing is needed for more advanced methods.
+The current state of the streamlit_interface that is supported will set the drone on a short path forwrad,
+and will use simple immediate greedy rewards and depth to try and avoid obsticales. 
+Some editing is needed for more advanced methods.
