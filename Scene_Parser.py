@@ -151,7 +151,7 @@ class SceneParser(Vision):
         print('Inference done!')
 
 
-# if __name__ == "__main__":
-#     pp = SceneParser()
-#     pp.transform('unreal_fire_ex.png', 'saved_images/')
+if __name__ == "__main__":
+     pp = SceneParser()
+     pp.transform('002233.jpg', 'saved_images/')
 
