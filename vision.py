@@ -45,7 +45,7 @@ class Vision:
             x = positions[direction][0]
             y = positions[direction][1]
             img_cut = img[y*height_cut:(y+1)*height_cut, x*width_cut:(x+1)*width_cut]
-            cv2.imwrite(direction + '.png', img_cut*255)
+            #cv2.imwrite(direction + '.png', img_cut*255)
             reward = 1 - np.mean(img_cut)
             rewards[direction] = reward
 
