@@ -22,3 +22,6 @@ such as various computer vision transformations.
 The current state of the streamlit_interface that is supported will set the drone on a short path forwrad,
 and will use simple immediate greedy rewards and depth to try and avoid obsticales. 
 Some editing is needed for more advanced methods.
+
+Please download all of our large files from our google drive, and place in the parent folder of your directory with github code.
+https://drive.google.com/drive/folders/1bpHiVPMtAaCCSrJbe5Co1lcWYeROO-DC?usp=sharing
